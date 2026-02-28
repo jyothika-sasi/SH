@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import Job, Application, User, db
+from she.backend.models import Job, Application, User, db
 from . import jobs_bp
 from datetime import datetime
 

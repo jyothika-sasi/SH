@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import Mentorship, User, db
+from she.backend.models import Mentorship, User, db
 from . import mentor_bp
 from datetime import datetime
 

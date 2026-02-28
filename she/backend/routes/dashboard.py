@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import User, Course, Job, Mentorship, Progress, db
+from she.backend.models import User, Course, Job, Mentorship, Progress, db
 from . import dashboard_bp
 
 @dashboard_bp.route('/dashboard')
