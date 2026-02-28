@@ -68,17 +68,51 @@ Application Status — Mark applicants as shortlisted, rejected, or hired.
 🔐 Security
 Passwords are hashed and never stored as plain text. Every page checks your role before letting you in. Sessions are managed securely with Flask-Login.
 Implementation
-For Software:
-Installation
-[Installation commands - e.g., npm install, pip install -r requirements.txt]
-Run
-[Run commands - e.g., npm start, python app.py]
-For Hardware:
-Components Required
-[List all components needed with specifications]
+## 🚀 How to Run
 
-Circuit Setup
-[Explain how to set up the circuit]
+### Prerequisites
+- Python 3.8 or higher — [python.org/downloads](https://python.org/downloads)
+- pip (included with Python)
+
+### Installation Steps
+
+*1. Clone the repository*
+bash
+git clone https://github.com/yourusername/SHE.git
+cd SHE
+
+
+*2. Create and activate a virtual environment*
+bash
+python -m venv venv
+
+# Windows:
+venv\Scripts\activate
+
+# Mac / Linux:
+source venv/bin/activate
+
+
+*3. Install dependencies*
+bash
+pip install flask flask-sqlalchemy flask-login werkzeug
+
+
+*4. Initialise the database*
+bash
+flask init-db
+
+
+*5. Run the application*
+bash
+python app.py
+
+
+*6. Open in browser*
+
+👉 http://127.0.0.1:5000
+
+---
 
 Project Documentation
 For Software:
@@ -92,17 +126,44 @@ Screenshots (Add at least 3)
 Diagrams
 System Architecture:
 
-Architecture Diagram Explain your system architecture - components, data flow, tech stack interaction
+SHE/
+├── app.py                           # Main Flask app — models, routes, DB config
+├── database.db                      # SQLite database (auto-created on first run)
+│
+├── backend/
+│   ├── routes/
+│   │   ├── jobs.py                  # Job route helpers
+│   │   └── mentor.py                # Mentor route helpers
+│   └── services/
+│       └── certificate_generator.py # Auto-generates certificates on completion
+│
+└── frontend/
+    ├── static/                      # CSS, JS, images, fonts
+    └── templates/                   # All Jinja2 HTML templates
+        ├── base.html                # Master layout (navbar, footer, CSS variables)
+        ├── index.html               # Public landing page
+        ├── login.html               # Login form
+        ├── signup.html              # Registration with role selector
+        ├── forgot_password.html     # Password reset page
+        ├── women_dashboard.html     # Home dashboard for women
+        ├── mentor_dashboard.html    # Home dashboard for mentors
+        ├── recruiter_dashboard.html # Home dashboard for recruiters
+        ├── courses.html             # Explore all courses with filters
+        ├── my_courses.html          # My enrolled courses + mentor section + chat
+        ├── mentors.html             # Browse & request mentors
+        ├── mentorship_requests.html # Mentor's incoming request list
+        ├── jobs.html                # Job listings board
+        ├── post_job.html            # Recruiter job creation form
+        ├── view_applicants.html     # Recruiter applicant viewer
+        └── skill_assessment.html   # Skill quiz for new learners
+
+
 
 Application Workflow:
 
 Workflow Add caption explaining your workflow
 
-For Hardware:
-Schematic & Circuit
-![Circuit](Add your circuit diagram here) Add caption explaining connections
 
-![Schematic](Add your schematic diagram here) Add caption explaining the schematic
 
 Build Photos
 ![Team](Add photo of your team here)
