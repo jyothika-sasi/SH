@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.page-wrap{max-width:1100px;margin:0 auto;padding:40px 36px}
+.enroll-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.enroll-card{background:white;border-radius:20px;padding:28px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 16px rgba(212,92,132,0.07);display:flex;gap:20px;align-items:flex-start;position:relative}
+.enroll-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--blush),var(--dusty));display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.enroll-info{flex:1}
+.enroll-info h4{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text-dark);margin-bottom:6px}
+.enroll-info p{font-size:0.82rem;color:var(--text-light);margin-bottom:14px;line-height:1.6}
+.prog-section{margin-bottom:12px}
+.prog-nums{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-mid);margin-bottom:5px}
+.prog-nums span:last-child{color:var(--cherry);font-weight:600}
+
+/* Mentor badge on card */
+.mentor-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#fde8ef,#f9d5e0);border-radius:50px;padding:4px 12px;font-size:0.74rem;color:#7a2040;margin-bottom:10px}
+.mentor-badge .mentor-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));display:flex;align-items:center;justify-content:center;font-size:0.8rem}
+
+/* Chat button on card */
+.btn-chat-mentor{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#f0e8ff,#d8c0f0);border:none;border-radius:50px;padding:5px 14px;font-size:0.75rem;color:#5a3080;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.btn-chat-mentor:hover{transform:scale(1.04);box-shadow:0 4px 12px rgba(160,100,220,0.2)}
+
+/* ── Inline Chat Panel ── */
+.chat-panel{display:none;position:fixed;bottom:0;right:0;width:100%;max-width:380px;height:500px;background:white;box-shadow:-4px 0 40px rgba(212,92,132,0.18);z-index:1200;flex-direction:column;border-radius:24px 24px 0 0;border:1px solid rgba(212,92,132,0.12)}
+.chat-panel.open{display:flex}
+.chat-panel-header{background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));padding:16px 20px;display:flex;align-items:center;gap:12px;border-radius:24px 24px 0 0}
+.cp-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.cp-info h4{color:white;font-size:0.95rem;font-family:'Playfair Display',serif;margin:0}
+.cp-info p{color:rgba(255,255,255,0.8);font-size:0.71rem;margin:0}
+.cp-close{margin-left:auto;background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1}
+.cp-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cp-msg{max-width:80%;padding:10px 14px;border-radius:18px;font-size:0.82rem;line-height:1.5}
+.cp-msg.mentor{background:linear-gradient(135deg,#fde8ef,#f9d5e0);color:#7a2040;border-bottom-left-radius:4px;align-self:flex-start}
+.cp-msg.learner{background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));color:white;border-bottom-right-radius:4px;align-self:flex-end}
+.cp-msg-time{font-size:0.64rem;opacity:0.6;margin-top:3px;text-align:right}
+.cp-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid rgba(212,92,132,0.1)}
+.cp-input{flex:1;border:1.5px solid rgba(212,92,132,0.2);border-radius:50px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s}
+.cp-input:focus{border-color:var(--petal,#f9a8c9)}
+.cp-send{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));border:none;cursor:pointer;color:white;font-size:1rem;display:flex;align-items:center;justify-content:center}
+.cp-send:hover{transform:scale(1.1)}
+
+.empty-state{text-align:center;padding:80px 40px;color:var(--text-light)}
+.empty-state-icon{font-size:4rem;margin-bottom:16px}
+@media(max-width:700px){.enroll-grid{grid-template-columns:1fr}.chat-panel{max-width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div style="margin-bottom:32px" class="reveal">
+        <span class="section-tag">🎓 My Learning</span>
+        <h2 class="section-title">My <em>Courses</em></h2>
+    </div>
+
+    {# Sample demo enrollments when no DB data #}
+    {% set demo_enrollments = [
+        {'course':{'title':'Bakery Management','category':'Culinary','description':'Learn to run a successful home or commercial bakery — recipes, costing, packaging & sales.','duration':'6 weeks','emoji':'🧁'},'progress_percentage':65,'completed':False,'mentor_name':'Priya','mentor_emoji':'👩‍🍳'},
+        {'course':{'title':'Stitching & Tailoring','category':'Craft','description':'Master hand & machine stitching, garment construction and alterations from scratch.','duration':'8 weeks','emoji':'🧵'},'progress_percentage':30,'completed':False,'mentor_name':'Meena','mentor_emoji':'🧵'},
+        {'course':{'title':'Web Development','category':'Technology','description':'Build modern websites with HTML, CSS & JavaScript — no prior experience needed.','duration':'12 weeks','emoji':'💻'},'progress_percentage':100,'completed':True,'mentor_name':'Anjali','mentor_emoji':'💻'},
+    ] %}
+
+    {% set all_enrollments = enrollments if enrollments else demo_enrollments %}
+
+    {% if all_enrollments %}
+    <div class="enroll-grid">
+        {% for e in all_enrollments %}
+        {% set mentor = e.mentor_name if e.mentor_name else 'Your Mentor' %}
+        {% set memoji = e.mentor_emoji if e.mentor_emoji else '👩‍🏫' %}
+        {% set course = e.course %}
+        <div class="enroll-card reveal" data-delay="{{ loop.index0 * 100 }}">
+            <div class="enroll-icon">
+                {% if 'tech' in (course.category or '')|lower or 'web' in (course.title or '')|lower %}💻
+                {% elif 'bakery' in (course.title or '')|lower or 'culinary' in (course.category or '')|lower %}🧁
+                {% elif 'stitch' in (course.title or '')|lower or 'craft' in (course.category or '')|lower %}🧵
+                {% elif 'beauty' in (course.category or '')|lower or 'hair' in (course.title or '')|lower %}💄
+                {% elif 'fashion' in (course.category or '')|lower %}👗
+                {% elif 'market' in (course.category or '')|lower %}📣
+                {% else %}📚{% endif %}
+            </div>
+            <div class="enroll-info">
+                <h4>{{ course.title }}</h4>
+                <p>{{ (course.description or '')[:80] }}{% if (course.description or '')|length > 80 %}...{% endif %}</p>
+
+                {# Mentor info #}
+                <div class="mentor-badge">
+                    <div class="mentor-avatar">{{ memoji }}</div>
+                    <span>Mentor: <strong>{{ mentor }}</strong></span>
+                </div>
+
+                <div class="prog-section">
+                    <div class="prog-nums"><span>Progress</span><span>{{ e.progress_percentage|int }}%</span></div>
+                    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ e.progress_percentage }}%"></div></div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+                    <span style="font-size:0.75rem;color:var(--text-light)">⏱ {{ course.duration }}</span>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        {% if not e.completed %}
+                        <button class="btn-chat-mentor" onclick="openChat('{{ mentor }}','{{ memoji }}','{{ course.title }}')">
+                            💬 Chat with Mentor
+                        </button>
+                        {% endif %}
+                        {% if e.completed %}
+                        <span class="badge-green">✅ Completed</span>
+                        {% else %}
+                        <a href="#" class="btn-outline-pink sm">Continue →</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <h4 style="font-family:'Playfair Display',serif;color:var(--text-dark);margin-bottom:8px">No Courses Enrolled Yet</h4>
+        <p style="margin-bottom:20px">Start learning today and unlock your potential! 🌸</p>
+        <a href="{{ url_for('courses.list_courses') }}" class="btn-pink lg">Browse Courses 📚</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ── Mentor Chat Panel ── -->
+<div class="chat-panel" id="chatPanel">
+    <div class="chat-panel-header">
+        <div class="cp-avatar" id="cpAvatar">👩‍🏫</div>
+        <div class="cp-info">
+            <h4 id="cpName">Mentor</h4>
+            <p id="cpCourse">Course mentor</p>
+        </div>
+        <button class="cp-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="cp-messages" id="cpMessages"></div>
+    <div class="cp-input-row">
+        <input class="cp-input" id="cpInput" type="text" placeholder="Ask your mentor…" onkeydown="if(event.key==='Enter')cpSend()">
+        <button class="cp-send" onclick="cpSend()">➤</button>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+const mentorGreetings={
+    'Priya':['Hello! 🧁 Great to see you working hard on your bakery course!','What questions do you have about today\'s lesson?'],
+    'Meena':['Hi! 🧵 Hope your stitching practice is going well!','Feel free to ask about any technique you\'re stuck on.'],
+    'Anjali':['Hey! 💻 Ready to debug some code together?','Ask me anything — no question is too small!'],
+    'Kavitha':['Hello! 💄 How\'s your beauty course going?','I\'m here to help with any styling questions!'],
+    'Rekha':['Hi! 🏠 Let\'s grow your business together!','Ask about pricing, marketing or customer management.'],
+    'Sudha':['Hello! 🎨 What are you creating today?','Ask me about any craft technique you\'re working on.'],
+};
+function openChat(mentor,emoji,course){
+    document.getElementById('cpAvatar').textContent=emoji;
+    document.getElementById('cpName').textContent='Mentor '+mentor;
+    document.getElementById('cpCourse').textContent=course;
+    const msgs=document.getElementById('cpMessages');
+    msgs.innerHTML='';
+    const greets=mentorGreetings[mentor]||['Hello! How can I help you today? 🌸'];
+    greets.forEach((m,i)=>setTimeout(()=>cpAddMsg(m,'mentor'),i*600));
+    document.getElementById('chatPanel').classList.add('open');
+}
+function closeChat(){document.getElementById('chatPanel').classList.remove('open')}
+function cpAddMsg(text,type){
+    const msgs=document.getElementById('cpMessages');
+    const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const div=document.createElement('div');
+    div.className='cp-msg '+type;
+    div.innerHTML=text+'<div class="cp-msg-time">'+now+'</div>';
+    msgs.appendChild(div);
+    msgs.scrollTop=msgs.scrollHeight;
+}
+function cpSend(){
+    const input=document.getElementById('cpInput');
+    const text=input.value.trim();
+    if(!text)return;
+    cpAddMsg(text,'learner');
+    input.value='';
+    const replies=[
+        'Great question! Let me explain step by step 🌸',
+        'You\'re making such good progress! Here\'s what to do next...',
+        'That\'s a common challenge. Try this approach...',
+        'Excellent! Practice this daily and you\'ll master it.',
+        'I\'m proud of your dedication! Keep going 💪',
+        'Let me share a tip that helped many of my students...',
+    ];
+    setTimeout(()=>cpAddMsg(replies[Math.floor(Math.random()*replies.length)],'mentor'),600+Math.random()*500);
+}
+</script>
+{% endblock %}
+{% endblock %}      

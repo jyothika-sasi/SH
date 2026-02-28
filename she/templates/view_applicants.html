@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.page-wrap{max-width:1100px;margin:0 auto;padding:40px 36px}
+.applicants-header{background:linear-gradient(135deg,#fff8f9,#fde8ef);border-radius:22px;padding:32px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.applicants-header h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--text-dark)}
+.applicants-header p{font-size:0.9rem;color:var(--text-light);margin-top:4px}
+.panel-card{background:white;border-radius:22px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07)}
+.action-btns{display:flex;gap:6px}
+.action-btn{width:32px;height:32px;border-radius:9px;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;transition:all 0.2s;text-decoration:none}
+.btn-view{background:rgba(102,153,238,0.1);color:#6699ee}
+.btn-view:hover{background:#6699ee;color:white}
+.btn-shortlist{background:rgba(66,186,100,0.1);color:#2e9b58}
+.btn-shortlist:hover{background:#2e9b58;color:white}
+.btn-reject{background:rgba(230,57,70,0.1);color:#c94040}
+.btn-reject:hover{background:#c94040;color:white}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+    <div class="applicants-header reveal">
+        <div>
+            <h2>👩 Applicants</h2>
+            <p>{{ job.title }} · {{ job.company }}</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn-outline-pink"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+
+    <div class="panel-card reveal" data-delay="80">
+        {% if applications %}
+        <table class="she-table">
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Location</th>
+                    <th>Applied On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--cherry));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;flex-shrink:0">{{ app.user.name[0].upper() }}</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.9rem;color:var(--text-dark)">{{ app.user.name }}</div>
+                            <div style="font-size:0.75rem;color:var(--text-light)">{{ app.user.email }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ app.user.location or '—' }}</td>
+                <td>{{ app.applied_at.strftime('%b %d, %Y') }}</td>
+                <td>
+                    {% if app.status == 'pending' %}<span class="badge-peach">⏳ Pending</span>
+                    {% elif app.status == 'reviewed' %}<span class="badge-lavender">👀 Reviewed</span>
+                    {% elif app.status == 'shortlisted' %}<span class="badge-green">✅ Shortlisted</span>
+                    {% elif app.status == 'rejected' %}<span class="badge-red">❌ Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{{ url_for('update_application', app_id=app.id, status='reviewed') }}" class="action-btn btn-view" title="Mark Reviewed"><i class="fas fa-eye"></i></a>
+                        <a href="{{ url_for('update_application', app_id=app.id, status='shortlisted') }}" class="action-btn btn-shortlist" title="Shortlist"><i class="fas fa-check"></i></a>
+                        <a href="{{ url_for('update_application', app_id=app.id, status='rejected') }}" class="action-btn btn-reject" title="Reject"><i class="fas fa-times"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="padding:60px;text-align:center;color:var(--text-light)">
+            <div style="font-size:3.5rem;margin-bottom:14px">📭</div>
+            <h4 style="font-family:'Playfair Display',serif;color:var(--text-dark);margin-bottom:8px">No Applications Yet</h4>
+            <p>Share your job posting to attract talented candidates! 🌸</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

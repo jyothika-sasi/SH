@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+<style>
+.auth-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    background: var(--cream);
+}
+.auth-visual {
+    background: linear-gradient(145deg, #fde8ef, #f4a7be, #ee7fa3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+}
+.auth-visual::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,255,255,0.12);border-radius:50%}
+.auth-visual::after{content:'';position:absolute;bottom:-60px;left:-60px;width:250px;height:250px;background:rgba(255,255,255,0.1);border-radius:50%}
+.auth-visual-content{position:relative;z-index:1;text-align:center;color:white}
+.auth-visual-icon{font-size:4.5rem;margin-bottom:18px;animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.auth-visual h2{font-family:'Dancing Script',cursive;font-size:2.3rem;margin-bottom:10px;text-shadow:0 2px 10px rgba(212,92,132,0.3)}
+.auth-visual p{font-size:0.9rem;opacity:0.9;line-height:1.8;max-width:240px}
+.auth-perks{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.auth-perk{display:flex;align-items:center;gap:10px;font-size:0.85rem}
+.auth-perk-dot{width:7px;height:7px;background:rgba(255,255,255,0.7);border-radius:50%;flex-shrink:0}
+
+.auth-form-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+    background: white;
+    overflow-y: auto;
+}
+.auth-form-box{width:100%;max-width:520px}
+.auth-form-box .brand{font-family:'Dancing Script',cursive;font-size:1.5rem;color:var(--cherry);margin-bottom:28px;display:block;text-decoration:none}
+.auth-form-box h1{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--text-dark);margin-bottom:6px}
+.auth-form-box .sub{font-size:0.88rem;color:var(--text-light);margin-bottom:32px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.auth-switch{text-align:center;font-size:0.88rem;color:var(--text-light);margin-top:20px}
+.auth-switch a{color:var(--cherry);font-weight:600;text-decoration:none}
+
+/* Role selector */
+.role-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+.role-option { display: none; }
+.role-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 10px;
+    border: 2px solid var(--dusty);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-align: center;
+}
+.role-label .role-emoji { font-size: 1.6rem; }
+.role-option:checked + .role-label {
+    border-color: var(--petal);
+    background: var(--ivory);
+    color: var(--cherry);
+}
+.role-label:hover { border-color: var(--rose); background: #fff8f9; }
+
+/* Conditional fields */
+.role-fields { display: none; }
+.role-fields.active { display: block; }
+
+@media(max-width:900px){
+    .auth-page{grid-template-columns:1fr}
+    .auth-visual{display:none}
+    .auth-form-area{padding:40px 24px}
+}
+@media(max-width:500px){
+    .form-row{grid-template-columns:1fr}
+    .role-selector{grid-template-columns:1fr 1fr}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-visual">
+        <div class="auth-visual-content">
+            <div class="auth-visual-icon">💐</div>
+            <h2>Join SHE Today! 🌸</h2>
+            <p>Start your journey to empowerment — completely free!</p>
+            <div class="auth-perks">
+                <div class="auth-perk"><div class="auth-perk-dot"></div>100+ free courses 📚</div>
+                <div class="auth-perk"><div class="auth-perk-dot"></div>Expert mentors 🎓</div>
+                <div class="auth-perk"><div class="auth-perk-dot"></div>Job opportunities 💼</div>
+                <div class="auth-perk"><div class="auth-perk-dot"></div>Certificates & recognition 🏅</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form-area">
+        <div class="auth-form-box">
+            <a href="{{ url_for('index') }}" class="brand">✿ SHE</a>
+            <h1>Create Account 💕</h1>
+            <p class="sub">Join thousands of women transforming their lives</p>
+
+            <form method="POST" action="{{ url_for('signup') }}" id="signupForm" novalidate>
+
+                <!-- Role Selector -->
+                <div class="form-group">
+                    <label class="form-label">I am a… 🌸</label>
+                    <div class="role-selector">
+                        <div>
+                            <input type="radio" name="role" id="role_women" value="women" class="role-option" checked onchange="switchRole()">
+                            <label for="role_women" class="role-label">
+                                <span class="role-emoji">👩</span>
+                                Woman
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="role" id="role_mentor" value="mentor" class="role-option" onchange="switchRole()">
+                            <label for="role_mentor" class="role-label">
+                                <span class="role-emoji">🎓</span>
+                                Mentor
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" name="role" id="role_recruiter" value="recruiter" class="role-option" onchange="switchRole()">
+                            <label for="role_recruiter" class="role-label">
+                                <span class="role-emoji">💼</span>
+                                Recruiter
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" name="name" class="form-input" placeholder="Your full name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" name="email" class="form-input" placeholder="your@email.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" name="phone" class="form-input" placeholder="+91 12345 67890">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-map-marker-alt input-icon"></i>
+                            <input type="text" name="location" class="form-input" placeholder="City, Country">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="password" id="signupPwd" class="form-input" placeholder="Min 6 characters">
+                            <button type="button" onclick="togglePwd('signupPwd',this)" style="position:absolute;right:12px;background:none;border:none;cursor:pointer;color:var(--text-light)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="confirm_password" id="confirmPwd" class="form-input" placeholder="Re-enter password">
+                        </div>
+                    </div>
+                </div>
+                <div id="pwdError" style="color:#e05c7c;font-size:0.82rem;margin-top:-14px;margin-bottom:12px;display:none">
+                    <i class="fas fa-exclamation-circle"></i> Passwords do not match
+                </div>
+
+                <!-- Mentor Fields -->
+                <div class="role-fields" id="mentorFields">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Area of Expertise</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-star input-icon"></i>
+                                <input type="text" name="expertise" class="form-input" placeholder="e.g. Web Development">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Years of Experience</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-calendar input-icon"></i>
+                                <input type="number" name="experience_years" class="form-input" placeholder="e.g. 5" min="0" max="50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recruiter Fields -->
+                <div class="role-fields" id="recruiterFields">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Company Name</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-building input-icon"></i>
+                                <input type="text" name="company" class="form-input" placeholder="Company name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Your Position</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-id-badge input-icon"></i>
+                                <input type="text" name="position" class="form-input" placeholder="e.g. HR Manager">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-pink" style="width:100%;justify-content:center;padding:14px;margin-top:8px">
+                    <i class="fas fa-user-plus"></i> Create My Account 🌸
+                </button>
+            </form>
+
+            <div class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login here 💕</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchRole() {
+    const role = document.querySelector('input[name="role"]:checked').value;
+    document.getElementById('mentorFields').classList.toggle('active', role === 'mentor');
+    document.getElementById('recruiterFields').classList.toggle('active', role === 'recruiter');
+}
+
+function togglePwd(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+// Password match check
+document.getElementById('confirmPwd').addEventListener('input', function() {
+    const pwd = document.getElementById('signupPwd').value;
+    const err = document.getElementById('pwdError');
+    err.style.display = this.value && this.value !== pwd ? 'block' : 'none';
+});
+
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    const pwd = document.getElementById('signupPwd').value;
+    const conf = document.getElementById('confirmPwd').value;
+    if (pwd !== conf) {
+        e.preventDefault();
+        document.getElementById('pwdError').style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

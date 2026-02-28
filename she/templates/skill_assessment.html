@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.assessment-hero {
+    background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 100%);
+    padding: 60px 80px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.assessment-hero::before {
+    content: '🌸';
+    position: absolute; top: 20px; left: 40px;
+    font-size: 3rem; opacity: 0.2;
+}
+.assessment-hero::after {
+    content: '✨';
+    position: absolute; bottom: 20px; right: 40px;
+    font-size: 2rem; opacity: 0.2;
+}
+.assessment-wrap {
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 24px 80px;
+}
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+}
+.step-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--dusty);
+    color: var(--text-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    transition: all 0.4s;
+    position: relative;
+    z-index: 1;
+}
+.step-dot.active {
+    background: linear-gradient(135deg, var(--petal), var(--cherry));
+    color: white;
+    box-shadow: 0 4px 15px rgba(212,92,132,0.35);
+}
+.step-dot.done {
+    background: var(--cherry);
+    color: white;
+}
+.step-line {
+    height: 3px;
+    width: 60px;
+    background: var(--dusty);
+    transition: background 0.4s;
+}
+.step-line.done { background: var(--cherry); }
+
+.question-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(212,92,132,0.12);
+    box-shadow: 0 8px 40px rgba(212,92,132,0.1);
+    padding: 40px;
+    margin-bottom: 28px;
+    display: none;
+    animation: fadeSlide 0.4s ease;
+}
+.question-card.active { display: block; }
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.q-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--petal);
+    margin-bottom: 10px;
+}
+.q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.option-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border: 2px solid var(--dusty);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.92rem;
+    color: var(--text-mid);
+    background: var(--soft-white);
+}
+.option-label:hover {
+    border-color: var(--petal);
+    background: #fff0f5;
+    color: var(--cherry);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212,92,132,0.12);
+}
+.option-label input[type="radio"] { display: none; }
+.option-label.selected {
+    border-color: var(--cherry);
+    background: linear-gradient(135deg, #fff0f5, #fce4ec);
+    color: var(--cherry);
+    font-weight: 600;
+}
+.option-label.selected .opt-icon { background: var(--cherry); color: white; }
+.opt-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--blush);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cherry);
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+
+.nav-btns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+}
+
+/* Results */
+.results-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(212,92,132,0.12);
+    box-shadow: 0 8px 40px rgba(212,92,132,0.1);
+    padding: 48px;
+    text-align: center;
+    display: none;
+}
+.results-card.active { display: block; animation: fadeSlide 0.5s ease; }
+.result-badge {
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, var(--rose), var(--cherry));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 24px;
+    box-shadow: 0 12px 35px rgba(212,92,132,0.3);
+}
+.skill-bars { margin: 32px 0; text-align: left; }
+.skill-bar-item { margin-bottom: 18px; }
+.skill-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+}
+.recommended-courses {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+    text-align: left;
+}
+.rec-course {
+    background: var(--ivory);
+    border: 1px solid var(--dusty);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s;
+}
+.rec-course:hover {
+    border-color: var(--petal);
+    box-shadow: 0 6px 20px rgba(212,92,132,0.12);
+    transform: translateY(-2px);
+}
+.rec-course-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.rec-course h4 { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+.rec-course p { font-size: 0.78rem; color: var(--text-light); }
+
+@media (max-width: 600px) {
+    .assessment-hero { padding: 40px 20px 30px; }
+    .assessment-wrap { padding: 0 16px 60px; }
+    .question-card { padding: 24px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .recommended-courses { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="assessment-hero">
+    <div class="section-tag">🌸 Know Your Strengths</div>
+    <h1 class="section-title">Skill Assessment ✨</h1>
+    <p style="color:var(--text-mid);font-size:1rem;max-width:480px;margin:0 auto;">
+        Answer a few questions and we'll map your skills and suggest the perfect learning path for you 💕
+    </p>
+</div>
+
+<div class="assessment-wrap">
+
+    <!-- Step indicators -->
+    <div class="progress-steps" id="stepIndicators">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2">2</div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="dot-3">3</div>
+        <div class="step-line" id="line-3"></div>
+        <div class="step-dot" id="dot-4">4</div>
+        <div class="step-line" id="line-4"></div>
+        <div class="step-dot" id="dot-5">5</div>
+    </div>
+
+    <!-- Question 1 -->
+    <div class="question-card active" id="q1">
+        <div class="q-number">Question 1 of 5</div>
+        <div class="q-text">What best describes your current experience with technology? 💻</div>
+        <div class="options-grid">
+            <label class="option-label" onclick="selectOption(this,'q1')">
+                <input type="radio" name="q1" value="beginner">
+                <div class="opt-icon">A</div>
+                Complete beginner — just starting out
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q1')">
+                <input type="radio" name="q1" value="basic">
+                <div class="opt-icon">B</div>
+                Basic — I use apps & social media comfortably
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q1')">
+                <input type="radio" name="q1" value="intermediate">
+                <div class="opt-icon">C</div>
+                Intermediate — I know some tools & software
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q1')">
+                <input type="radio" name="q1" value="advanced">
+                <div class="opt-icon">D</div>
+                Advanced — I work with tech professionally
+            </label>
+        </div>
+        <div class="nav-btns">
+            <span></span>
+            <button class="btn-pink" onclick="nextQ(1)">Next 🌸</button>
+        </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question-card" id="q2">
+        <div class="q-number">Question 2 of 5</div>
+        <div class="q-text">Which area excites you the most? 🌟</div>
+        <div class="options-grid">
+            <label class="option-label" onclick="selectOption(this,'q2')">
+                <input type="radio" name="q2" value="tech">
+                <div class="opt-icon">A</div>
+                Technology & Web Development
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q2')">
+                <input type="radio" name="q2" value="business">
+                <div class="opt-icon">B</div>
+                Business & Entrepreneurship
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q2')">
+                <input type="radio" name="q2" value="creative">
+                <div class="opt-icon">C</div>
+                Creative & Design
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q2')">
+                <input type="radio" name="q2" value="data">
+                <div class="opt-icon">D</div>
+                Data & Analytics
+            </label>
+        </div>
+        <div class="nav-btns">
+            <button class="btn-outline-pink" onclick="prevQ(2)">← Back</button>
+            <button class="btn-pink" onclick="nextQ(2)">Next 🌸</button>
+        </div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question-card" id="q3">
+        <div class="q-number">Question 3 of 5</div>
+        <div class="q-text">How much time can you dedicate to learning each week? ⏰</div>
+        <div class="options-grid">
+            <label class="option-label" onclick="selectOption(this,'q3')">
+                <input type="radio" name="q3" value="1-2">
+                <div class="opt-icon">A</div>
+                1–2 hours (light pace)
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q3')">
+                <input type="radio" name="q3" value="3-5">
+                <div class="opt-icon">B</div>
+                3–5 hours (steady pace)
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q3')">
+                <input type="radio" name="q3" value="6-10">
+                <div class="opt-icon">C</div>
+                6–10 hours (dedicated)
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q3')">
+                <input type="radio" name="q3" value="10+">
+                <div class="opt-icon">D</div>
+                10+ hours (full focus)
+            </label>
+        </div>
+        <div class="nav-btns">
+            <button class="btn-outline-pink" onclick="prevQ(3)">← Back</button>
+            <button class="btn-pink" onclick="nextQ(3)">Next 🌸</button>
+        </div>
+    </div>
+
+    <!-- Question 4 -->
+    <div class="question-card" id="q4">
+        <div class="q-number">Question 4 of 5</div>
+        <div class="q-text">What is your primary goal right now? 🎯</div>
+        <div class="options-grid">
+            <label class="option-label" onclick="selectOption(this,'q4')">
+                <input type="radio" name="q4" value="job">
+                <div class="opt-icon">A</div>
+                Get a new job or switch careers
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q4')">
+                <input type="radio" name="q4" value="freelance">
+                <div class="opt-icon">B</div>
+                Start freelancing or my own business
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q4')">
+                <input type="radio" name="q4" value="upskill">
+                <div class="opt-icon">C</div>
+                Upskill in my current role
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q4')">
+                <input type="radio" name="q4" value="explore">
+                <div class="opt-icon">D</div>
+                Just exploring and learning new things
+            </label>
+        </div>
+        <div class="nav-btns">
+            <button class="btn-outline-pink" onclick="prevQ(4)">← Back</button>
+            <button class="btn-pink" onclick="nextQ(4)">Next 🌸</button>
+        </div>
+    </div>
+
+    <!-- Question 5 -->
+    <div class="question-card" id="q5">
+        <div class="q-number">Question 5 of 5</div>
+        <div class="q-text">How do you learn best? 📚</div>
+        <div class="options-grid">
+            <label class="option-label" onclick="selectOption(this,'q5')">
+                <input type="radio" name="q5" value="video">
+                <div class="opt-icon">A</div>
+                Video lessons & tutorials
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q5')">
+                <input type="radio" name="q5" value="reading">
+                <div class="opt-icon">B</div>
+                Reading & articles
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q5')">
+                <input type="radio" name="q5" value="hands-on">
+                <div class="opt-icon">C</div>
+                Hands-on practice & projects
+            </label>
+            <label class="option-label" onclick="selectOption(this,'q5')">
+                <input type="radio" name="q5" value="mentored">
+                <div class="opt-icon">D</div>
+                With a mentor or in a group
+            </label>
+        </div>
+        <div class="nav-btns">
+            <button class="btn-outline-pink" onclick="prevQ(5)">← Back</button>
+            <button class="btn-pink" onclick="showResults()">See My Results 💕</button>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-card" id="results">
+        <div class="result-badge">🌸</div>
+        <div class="section-tag" style="justify-content:center;">✨ Your Results</div>
+        <h2 class="section-title" id="resultTitle">You're a <em>Rising Star!</em></h2>
+        <p style="color:var(--text-mid);max-width:480px;margin:0 auto 16px;" id="resultDesc">
+            Based on your answers, we've identified your key strengths and mapped out a personalised learning journey just for you 💕
+        </p>
+
+        <div class="skill-bars">
+            <div class="skill-bar-item">
+                <div class="skill-bar-label"><span>💻 Digital Skills</span><span id="score-digital">0%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-digital" style="width:0%"></div></div>
+            </div>
+            <div class="skill-bar-item">
+                <div class="skill-bar-label"><span>🎨 Creative Thinking</span><span id="score-creative">0%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-creative" style="width:0%"></div></div>
+            </div>
+            <div class="skill-bar-item">
+                <div class="skill-bar-label"><span>📊 Analytical Skills</span><span id="score-analytical">0%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-analytical" style="width:0%"></div></div>
+            </div>
+            <div class="skill-bar-item">
+                <div class="skill-bar-label"><span>🤝 Leadership</span><span id="score-leadership">0%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-leadership" style="width:0%"></div></div>
+            </div>
+        </div>
+
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-dark);margin-bottom:8px;">
+            Recommended for You 📚
+        </h3>
+        <p style="color:var(--text-light);font-size:0.88rem;margin-bottom:0;">Courses picked just for your profile</p>
+
+        <div class="recommended-courses" id="recCourses">
+            <div class="rec-course">
+                <div class="rec-course-icon">💻</div>
+                <h4>Web Development Basics</h4>
+                <p>Perfect starting point for tech beginners</p>
+            </div>
+            <div class="rec-course">
+                <div class="rec-course-icon">📱</div>
+                <h4>Digital Marketing</h4>
+                <p>Grow brands & build an online presence</p>
+            </div>
+            <div class="rec-course">
+                <div class="rec-course-icon">📊</div>
+                <h4>Data Analysis with Excel</h4>
+                <p>Turn numbers into powerful insights</p>
+            </div>
+        </div>
+
+        <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ url_for('courses') }}" class="btn-pink lg">Browse All Courses 🌸</a>
+            <a href="{{ url_for('mentors') }}" class="btn-outline-pink">Find a Mentor 💕</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let answers = {};
+
+function selectOption(el, qName) {
+    // Deselect all in this question
+    document.querySelectorAll(`#${qName} .option-label`).forEach(l => l.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    answers[qName] = el.querySelector('input').value;
+}
+
+function nextQ(current) {
+    if (!answers[`q${current}`]) {
+        // Gentle shake if nothing selected
+        const card = document.getElementById(`q${current}`);
+        card.style.animation = 'none';
+        card.style.border = '2px solid var(--petal)';
+        setTimeout(() => card.style.border = '1px solid rgba(212,92,132,0.12)', 800);
+        return;
+    }
+    document.getElementById(`q${current}`).classList.remove('active');
+    document.getElementById(`q${current + 1}`).classList.add('active');
+    updateSteps(current + 1);
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+}
+
+function prevQ(current) {
+    document.getElementById(`q${current}`).classList.remove('active');
+    document.getElementById(`q${current - 1}`).classList.add('active');
+    updateSteps(current - 1);
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+}
+
+function updateSteps(active) {
+    for (let i = 1; i <= 5; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.remove('active', 'done');
+        if (i < active) dot.classList.add('done');
+        else if (i === active) dot.classList.add('active');
+    }
+    for (let i = 1; i <= 4; i++) {
+        const line = document.getElementById(`line-${i}`);
+        line.classList.toggle('done', i < active);
+    }
+}
+
+function showResults() {
+    if (!answers['q5']) {
+        const card = document.getElementById('q5');
+        card.style.border = '2px solid var(--petal)';
+        setTimeout(() => card.style.border = '1px solid rgba(212,92,132,0.12)', 800);
+        return;
+    }
+
+    // Calculate scores based on answers
+    let digital = 30, creative = 30, analytical = 30, leadership = 30;
+
+    if (answers.q1 === 'advanced') digital += 50;
+    else if (answers.q1 === 'intermediate') digital += 35;
+    else if (answers.q1 === 'basic') digital += 20;
+    else digital += 5;
+
+    if (answers.q2 === 'tech') { digital += 20; analytical += 10; }
+    else if (answers.q2 === 'business') { leadership += 25; }
+    else if (answers.q2 === 'creative') { creative += 30; }
+    else if (answers.q2 === 'data') { analytical += 30; digital += 10; }
+
+    if (answers.q4 === 'freelance') { leadership += 15; creative += 10; }
+    else if (answers.q4 === 'job') { digital += 10; analytical += 10; }
+    else if (answers.q4 === 'upskill') { analytical += 15; }
+
+    // Cap at 100
+    digital = Math.min(digital, 95);
+    creative = Math.min(creative, 95);
+    analytical = Math.min(analytical, 95);
+    leadership = Math.min(leadership, 95);
+
+    // Show results panel
+    document.getElementById('q5').classList.remove('active');
+    document.getElementById('stepIndicators').style.display = 'none';
+    const res = document.getElementById('results');
+    res.classList.add('active');
+
+    // Determine title
+    const maxSkill = Math.max(digital, creative, analytical, leadership);
+    if (maxSkill === digital) {
+        document.getElementById('resultTitle').innerHTML = "You're a <em>Tech Trailblazer!</em> 💻";
+        document.getElementById('resultDesc').textContent = "You have strong digital instincts! Your path shines in web development, digital tools, and tech-driven roles.";
+    } else if (maxSkill === creative) {
+        document.getElementById('resultTitle').innerHTML = "You're a <em>Creative Visionary!</em> 🎨";
+        document.getElementById('resultDesc').textContent = "Your creative spark is your superpower! Design, content creation, and branding are where you'll truly shine.";
+    } else if (maxSkill === analytical) {
+        document.getElementById('resultTitle').innerHTML = "You're an <em>Analytical Gem!</em> 📊";
+        document.getElementById('resultDesc').textContent = "You love making sense of data and patterns. A future in analytics, finance, or research awaits you.";
+    } else {
+        document.getElementById('resultTitle').innerHTML = "You're a <em>Natural Leader!</em> 🌟";
+        document.getElementById('resultDesc').textContent = "People follow your energy! Business, management, and entrepreneurship are your natural territories.";
+    }
+
+    // Animate bars
+    setTimeout(() => {
+        animateBar('digital', digital);
+        animateBar('creative', creative);
+        animateBar('analytical', analytical);
+        animateBar('leadership', leadership);
+    }, 200);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function animateBar(name, value) {
+    const bar = document.getElementById(`bar-${name}`);
+    const score = document.getElementById(`score-${name}`);
+    bar.style.width = value + '%';
+    score.textContent = value + '%';
+}
+</script>
+{% endblock %}

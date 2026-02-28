@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.dashboard{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:36px;max-width:1300px;margin:0 auto}
+.sidebar{display:flex;flex-direction:column;gap:16px}
+.profile-card{background:white;border-radius:22px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07)}
+.profile-banner{height:90px;background:linear-gradient(135deg,#9575cd,#c2728f);position:relative}
+.profile-avatar-lg{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#9575cd,var(--cherry));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.5rem;color:white;font-weight:700;border:3px solid white;box-shadow:0 4px 15px rgba(149,117,205,0.3);position:absolute;bottom:-30px;left:50%;transform:translateX(-50%)}
+.profile-info{padding:46px 20px 16px;text-align:center}
+.profile-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text-dark);margin-bottom:4px}
+.profile-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(149,117,205,0.1);color:#7e57c2;padding:4px 14px;border-radius:50px;font-size:0.76rem;font-weight:600}
+
+.sidebar-nav{background:white;border-radius:20px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07)}
+.sidebar-nav a{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;font-size:0.88rem;color:var(--text-mid);text-decoration:none;border-left:3px solid transparent;transition:all 0.25s}
+.sidebar-nav a .nav-left{display:flex;align-items:center;gap:12px}
+.sidebar-nav a:hover{background:var(--ivory);color:var(--cherry);border-left-color:var(--petal)}
+.sidebar-nav a i{width:18px;text-align:center;color:var(--petal);font-size:0.9rem}
+.sidebar-nav a.active{background:var(--ivory);color:var(--cherry);border-left-color:var(--cherry);font-weight:600}
+.sidebar-nav a.logout-link{color:#e05c7c}
+.sidebar-nav a.logout-link i{color:#e05c7c}
+.sidebar-nav a.logout-link:hover{background:#fff0f0;border-left-color:#e05c7c}
+.sidebar-divider{height:1px;background:rgba(212,92,132,0.1);margin:4px 0}
+.notif-badge{background:var(--cherry);color:white;border-radius:50px;font-size:0.68rem;font-weight:700;padding:2px 8px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-card{background:white;border-radius:18px;padding:24px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 16px rgba(212,92,132,0.07);display:flex;justify-content:space-between;align-items:center}
+.stat-card-num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--cherry)}
+.stat-card-label{font-size:0.8rem;color:var(--text-light);margin-top:2px}
+.stat-card-icon{font-size:2.2rem;opacity:0.25}
+
+.welcome-banner{background:linear-gradient(135deg,#9575cd,var(--cherry));border-radius:22px;padding:32px 36px;color:white;position:relative;overflow:hidden}
+.welcome-banner::before{content:'🎓';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.18;pointer-events:none}
+.welcome-banner h3{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px}
+.welcome-banner p{font-size:0.9rem;opacity:0.88}
+
+.alert-banner{background:linear-gradient(135deg,#fff0f8,#fde8ef);border:1px solid var(--dusty);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:14px}
+.alert-banner i{font-size:1.3rem;color:var(--cherry);flex-shrink:0}
+.alert-banner p{font-size:0.9rem;color:var(--text-mid);margin:0}
+.alert-banner a{color:var(--cherry);font-weight:600;text-decoration:none}
+
+.panel-card{background:white;border-radius:20px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07);overflow:hidden}
+.panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(212,92,132,0.08)}
+.panel-header h5{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text-dark)}
+.panel-body{padding:0}
+
+.main-content{display:flex;flex-direction:column;gap:22px}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px}
+.info-item{background:var(--ivory);border-radius:12px;padding:14px}
+.info-item label{font-size:0.72rem;color:var(--text-light);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:4px}
+.info-item span{font-size:0.9rem;color:var(--text-dark);font-weight:500}
+
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.action-card{background:white;border-radius:18px;padding:20px;text-align:center;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 16px rgba(212,92,132,0.07);transition:all 0.3s;text-decoration:none;display:block}
+.action-card:hover{transform:translateY(-4px);box-shadow:0 12px 35px rgba(212,92,132,0.15)}
+.action-card .action-icon{font-size:1.8rem;margin-bottom:8px}
+.action-card h6{font-size:0.85rem;font-weight:600;color:var(--text-dark);margin-bottom:3px}
+.action-card p{font-size:0.75rem;color:var(--text-light)}
+
+@media(max-width:900px){.dashboard{grid-template-columns:1fr;padding:16px}.stats-grid{grid-template-columns:1fr 1fr}.quick-actions{grid-template-columns:1fr 1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-banner">
+                <div class="profile-avatar-lg">{{ current_user.name[0].upper() }}</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">{{ current_user.name }} 🎓</div>
+                <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px">{{ current_user.expertise or 'Expert Mentor' }}</div>
+                <div style="font-size:0.78rem;color:var(--text-light);margin-bottom:10px">📍 {{ current_user.location or 'Location not set' }}</div>
+                <span class="profile-badge">🎓 Mentor</span>
+            </div>
+            <div style="padding:0 16px 18px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.78rem;color:var(--text-light)">Experience</span>
+                    <span style="font-size:0.82rem;font-weight:600;color:var(--cherry)">{{ current_user.experience_years or 0 }} yrs</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.78rem;color:var(--text-light)">Active Mentees</span>
+                    <span style="font-size:0.82rem;font-weight:600;color:var(--cherry)">{{ mentees|length }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.78rem;color:var(--text-light)">Pending</span>
+                    <span style="font-size:0.82rem;font-weight:600;color:var(--cherry)">{{ pending_requests }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="active">
+                <div class="nav-left"><i class="fas fa-home"></i> Dashboard</div>
+            </a>
+            <a href="{{ url_for('mentorship_requests') }}">
+                <div class="nav-left"><i class="fas fa-handshake"></i> Requests</div>
+                {% if pending_requests > 0 %}<span class="notif-badge">{{ pending_requests }}</span>{% endif %}
+            </a>
+            <a href="{{ url_for('mentors') }}">
+                <div class="nav-left"><i class="fas fa-users"></i> Browse Mentors</div>
+            </a>
+            <a href="{{ url_for('courses') }}">
+                <div class="nav-left"><i class="fas fa-book"></i> Courses</div>
+            </a>
+            <a href="{{ url_for('post_job') }}">
+                <div class="nav-left"><i class="fas fa-briefcase"></i> Job Board</div>
+            </a>
+            <div class="sidebar-divider"></div>
+            <a href="{{ url_for('logout') }}" class="logout-link">
+                <div class="nav-left"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner reveal">
+            <h3>Welcome back, {{ current_user.name.split()[0] }}! 🎓</h3>
+            <p>You're making a real difference in women's lives. Review your requests and guide your mentees. ✨</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid reveal" data-delay="80">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-card-num">{{ mentees|length }}</div>
+                    <div class="stat-card-label">Active Mentees 👩</div>
+                </div>
+                <div class="stat-card-icon">👩‍💼</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-card-num">{{ pending_requests }}</div>
+                    <div class="stat-card-label">Pending Requests 📬</div>
+                </div>
+                <div class="stat-card-icon">📨</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-card-num">{{ current_user.experience_years or 0 }}</div>
+                    <div class="stat-card-label">Years Experience 🌟</div>
+                </div>
+                <div class="stat-card-icon">🏆</div>
+            </div>
+        </div>
+
+        <!-- Pending Request Alert -->
+        {% if pending_requests > 0 %}
+        <div class="alert-banner reveal" data-delay="100">
+            <i class="fas fa-bell"></i>
+            <p>You have <strong>{{ pending_requests }}</strong> pending mentorship request(s).
+               <a href="{{ url_for('mentorship_requests') }}">Review them now →</a></p>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="panel-card reveal" data-delay="130">
+            <div class="panel-header"><h5>⚡ Quick Actions</h5></div>
+            <div style="padding:20px">
+                <div class="quick-actions">
+                    <a href="{{ url_for('mentorship_requests') }}" class="action-card">
+                        <div class="action-icon">📨</div>
+                        <h6>View Requests</h6>
+                        <p>{{ pending_requests }} pending</p>
+                    </a>
+                    <a href="{{ url_for('courses') }}" class="action-card">
+                        <div class="action-icon">📚</div>
+                        <h6>Courses</h6>
+                        <p>Explore learning</p>
+                    </a>
+                    <a href="{{ url_for('post_job') }}" class="action-card">
+                        <div class="action-icon">💼</div>
+                        <h6>Job Board</h6>
+                        <p>Find opportunities</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="panel-card reveal" data-delay="160">
+            <div class="panel-header">
+                <h5>👤 My Profile</h5>
+                <span class="badge-lavender">🎓 Mentor</span>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Full Name</label>
+                    <span>{{ current_user.name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Email</label>
+                    <span style="font-size:0.82rem">{{ current_user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Phone</label>
+                    <span>{{ current_user.phone or 'Not provided' }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Location</label>
+                    <span>{{ current_user.location or 'Not set' }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Area of Expertise</label>
+                    <span>{{ current_user.expertise or 'Not specified' }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Experience</label>
+                    <span>{{ current_user.experience_years or 0 }} years</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Mentees -->
+        <div class="panel-card reveal" data-delay="200">
+            <div class="panel-header">
+                <h5>👩‍💼 My Active Mentees</h5>
+                <a href="{{ url_for('mentorship_requests') }}" class="btn-outline-pink sm">View Requests</a>
+            </div>
+            <div class="panel-body">
+                {% if mentees %}
+                <table class="she-table">
+                    <thead>
+                        <tr><th>Mentee</th><th>Location</th><th>Since</th><th>Progress</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for m in mentees %}
+                    {% set mentee = m.mentee %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--cherry));display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;font-weight:700;flex-shrink:0">{{ mentee.name[0].upper() }}</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.88rem;color:var(--text-dark)">{{ mentee.name }}</div>
+                                    <div style="font-size:0.74rem;color:var(--text-light)">{{ mentee.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ mentee.location or '—' }}</td>
+                        <td>{{ m.requested_at.strftime('%b %d, %Y') }}</td>
+                        <td style="width:140px">
+                            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:60%"></div></div>
+                            <div style="font-size:0.72rem;color:var(--text-light);margin-top:3px">In progress</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="padding:48px;text-align:center;color:var(--text-light)">
+                    <div style="font-size:3rem;margin-bottom:12px">🤝</div>
+                    <p style="margin-bottom:16px">No active mentees yet. Accept pending requests to start mentoring!</p>
+                    {% if pending_requests > 0 %}
+                    <a href="{{ url_for('mentorship_requests') }}" class="btn-pink sm">View {{ pending_requests }} Request(s) 💕</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Logout button -->
+        <div style="text-align:right;padding-bottom:8px" class="reveal" data-delay="220">
+            <a href="{{ url_for('logout') }}" class="btn-outline-pink" style="color:#e05c7c;border-color:rgba(224,92,124,0.3)">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

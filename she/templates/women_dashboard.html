@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.dashboard { display:grid; grid-template-columns:260px 1fr; gap:28px; padding:36px; max-width:1300px; margin:0 auto; }
+
+/* Sidebar */
+.sidebar { display:flex; flex-direction:column; gap:16px; }
+.profile-card { background:white; border-radius:22px; overflow:hidden; border:1px solid rgba(212,92,132,0.1); box-shadow:0 4px 20px rgba(212,92,132,0.07); }
+.profile-banner { height:80px; background:linear-gradient(135deg,var(--rose),var(--cherry)); position:relative; }
+.profile-avatar-wrap { position:absolute; bottom:-28px; left:50%; transform:translateX(-50%); }
+.profile-avatar-lg { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--petal),var(--cherry)); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.5rem; color:white; font-weight:700; border:3px solid white; box-shadow:0 4px 15px rgba(212,92,132,0.3); }
+.profile-info { padding:44px 20px 20px; text-align:center; }
+.profile-name { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--text-dark); margin-bottom:4px; }
+.profile-loc { font-size:0.8rem; color:var(--text-light); margin-bottom:12px; }
+.profile-badge { display:inline-flex; align-items:center; gap:4px; background:rgba(212,92,132,0.08); color:var(--cherry); padding:4px 14px; border-radius:50px; font-size:0.76rem; font-weight:600; }
+
+.sidebar-nav { background:white; border-radius:20px; overflow:hidden; border:1px solid rgba(212,92,132,0.1); box-shadow:0 4px 20px rgba(212,92,132,0.07); }
+.sidebar-nav a { display:flex; align-items:center; gap:12px; padding:14px 20px; font-size:0.88rem; color:var(--text-mid); text-decoration:none; border-left:3px solid transparent; transition:all 0.25s; }
+.sidebar-nav a:hover { background:var(--ivory); color:var(--cherry); border-left-color:var(--petal); }
+.sidebar-nav a i { width:18px; text-align:center; color:var(--petal); font-size:0.9rem; }
+.sidebar-nav a.active { background:var(--ivory); color:var(--cherry); border-left-color:var(--cherry); font-weight:600; }
+
+.progress-mini-card { background:white; border-radius:20px; padding:20px; border:1px solid rgba(212,92,132,0.1); box-shadow:0 4px 20px rgba(212,92,132,0.07); }
+.progress-mini-card h6 { font-family:'Playfair Display',serif; font-size:0.95rem; color:var(--text-dark); margin-bottom:16px; }
+.prog-item { margin-bottom:14px; }
+.prog-label { display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-mid); margin-bottom:5px; }
+.prog-label span:last-child { color:var(--cherry); font-weight:600; }
+
+/* Main */
+.main-content { display:flex; flex-direction:column; gap:22px; }
+
+.welcome-banner {
+    background:linear-gradient(135deg,var(--cherry),var(--petal));
+    border-radius:22px;
+    padding:32px 36px;
+    color:white;
+    position:relative;
+    overflow:hidden;
+}
+.welcome-banner::before{content:'🌸';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.2}
+.welcome-banner h3 { font-family:'Playfair Display',serif; font-size:1.6rem; margin-bottom:6px; }
+.welcome-banner p { font-size:0.9rem; opacity:0.88; }
+
+.quick-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.action-card { background:white; border-radius:18px; padding:24px; text-align:center; border:1px solid rgba(212,92,132,0.1); box-shadow:0 4px 16px rgba(212,92,132,0.07); transition:all 0.3s; text-decoration:none; display:block; }
+.action-card:hover { transform:translateY(-4px); box-shadow:0 12px 35px rgba(212,92,132,0.15); }
+.action-icon { font-size:2rem; margin-bottom:10px; }
+.action-card h6 { font-size:0.88rem; font-weight:600; color:var(--text-dark); margin-bottom:4px; }
+.action-card p { font-size:0.78rem; color:var(--text-light); }
+
+.panel-card { background:white; border-radius:20px; border:1px solid rgba(212,92,132,0.1); box-shadow:0 4px 20px rgba(212,92,132,0.07); overflow:hidden; }
+.panel-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid rgba(212,92,132,0.08); }
+.panel-header h5 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--text-dark); }
+.panel-body { padding:24px; }
+
+.course-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.course-mini { background:var(--ivory); border-radius:14px; padding:18px; border:1px solid rgba(212,92,132,0.1); transition:all 0.3s; }
+.course-mini:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(212,92,132,0.12); }
+.course-mini h6 { font-size:0.88rem; font-weight:600; color:var(--text-dark); margin-bottom:6px; }
+.course-mini p { font-size:0.76rem; color:var(--text-light); margin-bottom:10px; line-height:1.5; }
+
+.mentor-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.mentor-mini { background:var(--ivory); border-radius:14px; padding:18px; border:1px solid rgba(212,92,132,0.1); text-align:center; transition:all 0.3s; }
+.mentor-mini:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(212,92,132,0.12); }
+.mentor-avatar-sm { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--rose),var(--cherry)); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.1rem; color:white; font-weight:700; margin:0 auto 10px; }
+.mentor-mini h6 { font-size:0.85rem; font-weight:600; color:var(--text-dark); }
+.mentor-mini p { font-size:0.75rem; color:var(--text-light); margin:3px 0 10px; }
+
+.job-list { display:flex; flex-direction:column; gap:0; }
+.job-item { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid rgba(212,92,132,0.08); }
+.job-item:last-child { border-bottom:none; }
+.job-item h6 { font-size:0.9rem; font-weight:600; color:var(--text-dark); margin-bottom:3px; }
+.job-item p { font-size:0.78rem; color:var(--text-light); }
+
+@media(max-width:900px){
+    .dashboard{grid-template-columns:1fr;padding:16px}
+    .quick-actions{grid-template-columns:1fr 1fr}
+    .course-mini-grid,.mentor-mini-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="profile-card">
+            <div class="profile-banner"></div>
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar-lg">{{ current_user.name[0].upper() }}</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">{{ current_user.name }} 🌸</div>
+                <div class="profile-loc">📍 {{ current_user.location or 'Location not set' }}</div>
+                <span class="profile-badge">👩 Women</span>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{{ url_for('skill_assessment') }}"><i class="fas fa-brain"></i> Skill Assessment</a>
+            <a href="{{ url_for('courses') }}"><i class="fas fa-book"></i> Courses</a>
+            <a href="{{ url_for('courses') }}"><i class="fas fa-graduation-cap"></i> My Courses</a>
+            <a href="{{ url_for('mentors') }}"><i class="fas fa-chalkboard-teacher"></i> Find Mentor</a>
+            <a href="{{ url_for('post_job') }}"><i class="fas fa-briefcase"></i> Job Board</a>
+            <a href="#"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+
+        {% if progress %}
+        <div class="progress-mini-card">
+            <h6>📈 Your Progress</h6>
+            {% for p in progress[:3] %}
+            <div class="prog-item">
+                <div class="prog-label"><span>Course {{ loop.index }}</span><span>{{ p.progress_percentage|int }}%</span></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:{{ p.progress_percentage }}%"></div></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner reveal">
+            <h3>Welcome back, {{ current_user.name.split()[0] }}! 💕</h3>
+            <p>Continue your empowerment journey. Complete your skill assessment for personalised recommendations. ✨</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions reveal" data-delay="100">
+            <a href="{{ url_for('skill_assessment') }}" class="action-card">
+                <div class="action-icon">🧠</div>
+                <h6>Skill Assessment</h6>
+                <p>Discover your strengths</p>
+            </a>
+            <a href="{{ url_for('mentors') }}" class="action-card">
+                <div class="action-icon">🤝</div>
+                <h6>Book a Mentor</h6>
+                <p>Get expert guidance</p>
+            </a>
+            <a href="{{ url_for('post_job') }}" class="action-card">
+                <div class="action-icon">💼</div>
+                <h6>Browse Jobs</h6>
+                <p>Find dream opportunities</p>
+            </a>
+        </div>
+
+        <!-- Recommended Courses -->
+        <div class="panel-card reveal" data-delay="150">
+            <div class="panel-header">
+                <h5>📚 Recommended Courses</h5>
+                <a href="{{ url_for('courses') }}" class="btn-outline-pink sm">View All</a>
+            </div>
+            <div class="panel-body">
+                {% if courses %}
+                <div class="course-mini-grid">
+                    {% for course in courses %}
+                    <div class="course-mini">
+                        <h6>{{ course.title }}</h6>
+                        <p>{{ (course.description or '')[:60] }}{% if (course.description or '')|length > 60 %}…{% endif %}</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                            <span class="badge-pink" style="font-size:0.7rem">{{ course.level }}</span>
+                            <span style="font-size:0.72rem;color:var(--text-light)">{{ course.duration }}</span>
+                        </div>
+                        <a href="{{ url_for('enroll_course', course_id=course.id) }}" class="btn-pink sm" style="width:100%;justify-content:center">Enroll 🌸</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align:center;color:var(--text-light);padding:20px 0">No courses available yet. Check back soon! 🌸</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Available Mentors -->
+        <div class="panel-card reveal" data-delay="200">
+            <div class="panel-header">
+                <h5>🎓 Available Mentors</h5>
+                <a href="{{ url_for('mentors') }}" class="btn-outline-pink sm">View All</a>
+            </div>
+            <div class="panel-body">
+                {% if mentors %}
+                <div class="mentor-mini-grid">
+                    {% for mentor in mentors %}
+                    <div class="mentor-mini">
+                        <div class="mentor-avatar-sm">{{ mentor.name[0].upper() }}</div>
+                        <h6>{{ mentor.name }}</h6>
+                        <p>{{ mentor.expertise or 'Expert Mentor' }}</p>
+                        <!-- ✅ FIXED — plain quotes -->
+                      <a href="{{ url_for('request_mentor', mentor_id=mentor.id) }}"
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align:center;color:var(--text-light);padding:20px 0">No mentors available yet 🌸</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Latest Jobs -->
+        <div class="panel-card reveal" data-delay="250">
+            <div class="panel-header">
+                <h5>💼 Latest Job Opportunities</h5>
+                <a href="{{ url_for('post_job') }}" class="btn-outline-pink sm">View All</a>
+            </div>
+            <div class="panel-body">
+                {% if jobs %}
+                <div class="job-list">
+                    {% for job in jobs %}
+                    <div class="job-item">
+                        <div>
+                            <h6>{{ job.title }}</h6>
+                            <p>{{ job.company }} · {{ job.location }} · <span style="color:var(--cherry)">{{ job.salary_range }}</span></p>
+                        </div>
+                        <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn-pink sm">Apply 🌸</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align:center;color:var(--text-light);padding:20px 0">No jobs posted yet. Check back soon! 💼</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

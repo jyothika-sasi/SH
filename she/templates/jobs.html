@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.jobs-page{max-width:1100px;margin:0 auto;padding:40px 36px}
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;flex-wrap:wrap;gap:16px}
+.jobs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.job-card{background:white;border-radius:22px;padding:28px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07);transition:all 0.3s;display:flex;flex-direction:column}
+.job-card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(212,92,132,0.15)}
+.job-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.company-avatar{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--rose),var(--cherry));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.1rem;flex-shrink:0}
+.job-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text-dark);margin-bottom:4px}
+.job-company{font-size:0.82rem;color:var(--text-light);margin-bottom:14px}
+.job-desc{font-size:0.85rem;color:var(--text-mid);line-height:1.7;margin-bottom:16px;flex:1}
+.job-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.job-footer{margin-top:auto}
+.empty-state{text-align:center;padding:80px 40px;color:var(--text-light)}
+@media(max-width:700px){.jobs-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jobs-page">
+    <div class="page-header reveal">
+        <div>
+            <span class="section-tag">💼 Opportunities</span>
+            <h2 class="section-title">Job <em>Board</em></h2>
+        </div>
+        {% if current_user.role == 'recruiter' %}
+        <a href="{{ url_for('post_job') }}" class="btn-pink"><i class="fas fa-plus-circle"></i> Post a Job</a>
+        {% endif %}
+    </div>
+
+    {% if jobs %}
+    <div class="jobs-grid">
+        {% for job in jobs %}
+        <div class="job-card reveal" data-delay="{{ loop.index0 * 80 }}">
+            <div class="job-card-top">
+                <div style="flex:1">
+                    <div class="job-title">{{ job.title }}</div>
+                    <div class="job-company">{{ job.company }}</div>
+                </div>
+                <div class="company-avatar">{{ (job.company or 'C')[0].upper() }}</div>
+            </div>
+            <div class="job-desc">{{ (job.description or '')[:120] }}{% if (job.description or '')|length > 120 %}…{% endif %}</div>
+            <div class="job-meta">
+                <span class="badge-pink">📍 {{ job.location }}</span>
+                <span class="badge-teal">💰 {{ job.salary_range }}</span>
+                <span style="font-size:0.74rem;color:var(--text-light);align-self:center">Posted {{ job.posted_at.strftime('%b %d') }}</span>
+            </div>
+            <div class="job-footer">
+                {% if current_user.role == 'women' %}
+                <a href="{{ url_for('apply_job', job_id=job.id) }}" class="btn-pink sm" style="width:100%;justify-content:center;display:flex">
+                    <i class="fas fa-paper-plane"></i> Apply Now 🌸
+                </a>
+                {% elif current_user.role == 'recruiter' and job.recruiter_id == current_user.id %}
+                <a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn-outline-pink sm" style="width:100%;justify-content:center">
+                    <i class="fas fa-users"></i> View Applicants ({{ job.applications|length }})
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div style="font-size:4rem;margin-bottom:16px">💼</div>
+        <h4 style="font-family:'Playfair Display',serif;color:var(--text-dark);margin-bottom:8px">No Jobs Available</h4>
+        <p>New opportunities will be posted soon. Check back later! 🌸</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.page-hero {
+    background: linear-gradient(135deg, var(--blush) 0%, var(--ivory) 100%);
+    padding: 48px 80px 36px;
+}
+.page-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+.page-hero p { color: var(--text-mid); font-size: 0.95rem; }
+
+.requests-wrap {
+    max-width: 1000px;
+    margin: 40px auto 80px;
+    padding: 0 24px;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 36px;
+}
+.stat-card {
+    background: white;
+    border-radius: 18px;
+    padding: 24px 28px;
+    border: 1px solid rgba(212,92,132,0.1);
+    box-shadow: 0 4px 20px rgba(212,92,132,0.07);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.stat-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: rgba(212,92,132,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.stat-label { font-size: 0.78rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--text-dark); font-family: 'Playfair Display', serif; }
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--text-dark);
+}
+
+.requests-table-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(212,92,132,0.1);
+    box-shadow: 0 4px 20px rgba(212,92,132,0.07);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--text-light);
+}
+.empty-state .empty-emoji { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.95rem; }
+
+.req-row td { vertical-align: middle; }
+
+.mentee-info { display: flex; align-items: center; gap: 12px; }
+.mentee-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--cherry));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+.mentee-name { font-size: 0.92rem; font-weight: 600; color: var(--text-dark); }
+.mentee-email { font-size: 0.78rem; color: var(--text-light); }
+
+.message-preview {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-btns { display: flex; gap: 8px; }
+.btn-accept {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: linear-gradient(135deg, #42ba64, #2e9b58);
+    color: white; border: none; border-radius: 50px;
+    padding: 7px 16px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.3s;
+    font-family: 'DM Sans', sans-serif;
+}
+.btn-accept:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(46,155,88,0.35); color: white; }
+.btn-reject {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: white; color: #c94040; border: 2px solid rgba(201,64,64,0.2);
+    border-radius: 50px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.3s;
+    font-family: 'DM Sans', sans-serif;
+}
+.btn-reject:hover { background: rgba(201,64,64,0.06); border-color: #c94040; }
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.filter-tab {
+    padding: 7px 18px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid var(--dusty);
+    background: white;
+    color: var(--text-mid);
+    transition: all 0.3s;
+}
+.filter-tab.active, .filter-tab:hover {
+    background: rgba(212,92,132,0.08);
+    border-color: var(--petal);
+    color: var(--cherry);
+}
+
+@media (max-width: 700px) {
+    .page-hero { padding: 36px 20px 24px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .she-table thead { display: none; }
+    .she-table tr { display: block; margin-bottom: 16px; border: 1px solid var(--dusty); border-radius: 14px; }
+    .she-table td { display: block; padding: 10px 16px; border: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+    <div class="section-tag">💗 Mentorship</div>
+    <h1>Mentorship Requests ✨</h1>
+    <p>Review and manage all mentorship requests from women who want your guidance 🌸</p>
+</div>
+
+<div class="requests-wrap">
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div>
+                <div class="stat-label">Pending</div>
+                <div class="stat-value">{{ requests | selectattr('status', 'equalto', 'pending') | list | length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div>
+                <div class="stat-label">Accepted</div>
+                <div class="stat-value">{{ requests | selectattr('status', 'equalto', 'accepted') | list | length }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div>
+                <div class="stat-label">Total Requests</div>
+                <div class="stat-value">{{ requests | length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+        <div class="filter-tab active" onclick="filterRequests('all', this)">All Requests</div>
+        <div class="filter-tab" onclick="filterRequests('pending', this)">⏳ Pending</div>
+        <div class="filter-tab" onclick="filterRequests('accepted', this)">✅ Accepted</div>
+        <div class="filter-tab" onclick="filterRequests('rejected', this)">❌ Declined</div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="section-header">
+        <h2>All Requests 💌</h2>
+    </div>
+
+    <div class="requests-table-card">
+        {% if requests %}
+        <table class="she-table" id="requestsTable">
+            <thead>
+                <tr>
+                    <th>Mentee</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr class="req-row" data-status="{{ req.status }}">
+                    <td>
+                        <div class="mentee-info">
+                            <div class="mentee-avatar">
+                                {% if req.mentee %}
+                                    {{ req.mentee.name[0].upper() }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="mentee-name">
+                                    {% if req.mentee %}{{ req.mentee.name }}{% else %}Unknown User{% endif %}
+                                </div>
+                                <div class="mentee-email">
+                                    {% if req.mentee %}{{ req.mentee.email }}{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="message-preview" title="{{ req.message }}">
+                            {{ req.message if req.message else 'No message provided' }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if req.status == 'pending' %}
+                            <span class="badge-pink badge-peach">⏳ Pending</span>
+                        {% elif req.status == 'accepted' %}
+                            <span class="badge-pink badge-green">✅ Accepted</span>
+                        {% elif req.status == 'rejected' %}
+                            <span class="badge-pink badge-red">❌ Declined</span>
+                        {% else %}
+                            <span class="badge-pink">{{ req.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if req.status == 'pending' %}
+                        <div class="action-btns">
+                            <a href="{{ url_for('accept_mentor', request_id=req.id) }}" class="btn-accept">
+                                ✓ Accept
+                            </a>
+                            <a href="{{ url_for('reject_mentor', request_id=req.id) }}" class="btn-reject">
+                                ✕ Decline
+                            </a>
+                        </div>
+                        {% else %}
+                            <span style="font-size:0.82rem;color:var(--text-light);">No actions</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-emoji">💌</div>
+            <p>No mentorship requests yet.<br>Share your profile to start receiving requests! 🌸</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="text-align:center;">
+        <a href="{{ url_for('dashboard') }}" class="btn-outline-pink">← Back to Dashboard</a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterRequests(status, el) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+
+    document.querySelectorAll('.req-row').forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

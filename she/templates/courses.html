@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.courses-page{max-width:1200px;margin:0 auto;padding:40px 36px}
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;flex-wrap:wrap;gap:16px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap}
+.filter-select{padding:10px 16px;border:2px solid var(--dusty);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--text-mid);background:white;cursor:pointer;outline:none;transition:all 0.3s}
+.filter-select:focus,.filter-select:hover{border-color:var(--petal);color:var(--cherry)}
+.courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.course-card{background:white;border-radius:22px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07);transition:all 0.3s;display:flex;flex-direction:column}
+.course-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(212,92,132,0.15)}
+.course-card-thumb{height:140px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;overflow:hidden}
+.thumb-tech{background:linear-gradient(135deg,#e8d5f5,#d4a7e8)}
+.thumb-marketing{background:linear-gradient(135deg,#fde8ef,#f9d5e0)}
+.thumb-business{background:linear-gradient(135deg,#d5ede8,#a7d4c8)}
+.thumb-design{background:linear-gradient(135deg,#fce4d6,#f9c4a8)}
+.thumb-culinary{background:linear-gradient(135deg,#fff3cd,#ffe08a)}
+.thumb-craft{background:linear-gradient(135deg,#fde8f5,#f9b8e0)}
+.thumb-beauty{background:linear-gradient(135deg,#ffeef8,#ffcce8)}
+.thumb-homeentrepreneur{background:linear-gradient(135deg,#e8f5e9,#b2dfdb)}
+.thumb-fashion{background:linear-gradient(135deg,#f8e1f4,#e8a0d0)}
+.thumb-default{background:linear-gradient(135deg,var(--blush),var(--dusty))}
+.course-card-body{padding:22px;flex:1;display:flex;flex-direction:column}
+.course-card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text-dark);margin-bottom:8px;line-height:1.4}
+.course-card-desc{font-size:0.83rem;color:var(--text-light);line-height:1.7;margin-bottom:14px;flex:1}
+.course-card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.course-card-footer{margin-top:auto}
+.empty-state{text-align:center;padding:80px 40px;color:var(--text-light)}
+.empty-state-icon{font-size:4rem;margin-bottom:16px}
+
+/* ── Chat Widget ── */
+.chat-fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--cherry),var(--petal));border:none;cursor:pointer;font-size:1.5rem;box-shadow:0 6px 24px rgba(212,92,132,0.45);z-index:1000;display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+.chat-fab:hover{transform:scale(1.1)}
+.chat-widget{position:fixed;bottom:96px;right:28px;width:340px;height:480px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(212,92,132,0.22);z-index:1000;display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(212,92,132,0.15)}
+.chat-widget.open{display:flex}
+.chat-header{background:linear-gradient(135deg,var(--cherry, #d45c84),var(--petal, #f9a8c9));padding:16px 20px;display:flex;align-items:center;gap:12px}
+.chat-header-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.chat-header-info h4{color:white;font-family:'Playfair Display',serif;font-size:0.95rem;margin:0}
+.chat-header-info p{color:rgba(255,255,255,0.8);font-size:0.72rem;margin:0}
+.chat-header-close{margin-left:auto;background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;padding:4px}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:78%;padding:10px 14px;border-radius:18px;font-size:0.82rem;line-height:1.5}
+.chat-msg.mentor{background:linear-gradient(135deg,#fde8ef,#f9d5e0);color:#7a2040;border-bottom-left-radius:4px;align-self:flex-start}
+.chat-msg.learner{background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));color:white;border-bottom-right-radius:4px;align-self:flex-end}
+.chat-msg-time{font-size:0.65rem;opacity:0.6;margin-top:3px;text-align:right}
+.chat-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid rgba(212,92,132,0.1)}
+.chat-input{flex:1;border:1.5px solid rgba(212,92,132,0.2);border-radius:50px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s}
+.chat-input:focus{border-color:var(--petal,#f9a8c9)}
+.chat-send{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cherry,#d45c84),var(--petal,#f9a8c9));border:none;cursor:pointer;color:white;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:transform 0.15s}
+.chat-send:hover{transform:scale(1.1)}
+.chat-mentor-select{padding:8px 16px;border-top:1px solid rgba(212,92,132,0.08);background:#fffafc}
+.chat-mentor-select select{width:100%;border:1.5px solid rgba(212,92,132,0.2);border-radius:50px;padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-mid,#888);background:white;outline:none}
+
+@media(max-width:900px){.courses-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.courses-grid{grid-template-columns:1fr}.chat-widget{width:calc(100vw - 32px);right:16px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="courses-page">
+    <div class="page-header reveal">
+        <div>
+            <span class="section-tag">📚 Learning Hub</span>
+            <h2 class="section-title">Explore <em>Courses</em></h2>
+        </div>
+        <div class="filter-row">
+            <select class="filter-select" id="categoryFilter" onchange="filterCourses()">
+                <option value="all">🌸 All Categories</option>
+                <option value="Technology">💻 Technology</option>
+                <option value="Marketing">📣 Marketing</option>
+                <option value="Business">📊 Business</option>
+                <option value="Design">🎨 Design</option>
+                <option value="Culinary">🍰 Culinary Arts</option>
+                <option value="Craft">🧵 Craft & Textile</option>
+                <option value="Beauty">💄 Beauty & Wellness</option>
+                <option value="Home Entrepreneur">🏠 Home Entrepreneur</option>
+                <option value="Fashion">👗 Fashion</option>
+                <option value="Personal Development">🌱 Personal Dev</option>
+            </select>
+            <select class="filter-select" id="levelFilter" onchange="filterCourses()">
+                <option value="all">⭐ All Levels</option>
+                <option value="Beginner">🌱 Beginner</option>
+                <option value="Intermediate">🌿 Intermediate</option>
+                <option value="Advanced">🌳 Advanced</option>
+            </select>
+        </div>
+    </div>
+
+    {# ── Static showcase cards for women-focused courses (shown when no DB courses) ── #}
+    {% set showcase = [
+        {'title':'Bakery Management','category':'Culinary','level':'Beginner','duration':'6 weeks','emoji':'🧁','desc':'Learn to run a successful home or commercial bakery — recipes, costing, packaging & sales.'},
+        {'title':'Stitching & Tailoring','category':'Craft','level':'Beginner','duration':'8 weeks','emoji':'🧵','desc':'Master hand & machine stitching, garment construction and alterations from scratch.'},
+        {'title':'Pastry & Cake Making','category':'Culinary','level':'Intermediate','duration':'5 weeks','emoji':'🎂','desc':'Professional pastry techniques, fondant, tiered cakes and French patisserie basics.'},
+        {'title':'Web Development','category':'Technology','level':'Beginner','duration':'12 weeks','emoji':'💻','desc':'Build modern websites with HTML, CSS & JavaScript — no prior experience needed.'},
+        {'title':'Fashion Design Fundamentals','category':'Fashion','level':'Beginner','duration':'10 weeks','emoji':'👗','desc':'Sketching, fabric selection, pattern drafting and building your first capsule collection.'},
+        {'title':'Hair Dressing & Styling','category':'Beauty','level':'Beginner','duration':'6 weeks','emoji':'💇‍♀️','desc':'Cuts, coloring, braiding and salon management for aspiring hair professionals.'},
+        {'title':'Achar & Preserve Making','category':'Culinary','level':'Beginner','duration':'3 weeks','emoji':'🫙','desc':'Traditional pickles, jams and preserves — recipes, hygiene, labeling & selling tips.'},
+        {'title':'Home Business Management','category':'Home Entrepreneur','level':'Intermediate','duration':'7 weeks','emoji':'🏠','desc':'Pricing, bookkeeping, Instagram marketing and growing a thriving home business.'},
+        {'title':'Cloth & Fabric Painting','category':'Craft','level':'Beginner','duration':'4 weeks','emoji':'🎨','desc':'Block printing, tie-dye, stencil art and fabric painting on sarees, shirts & bags.'},
+        {'title':'Digital Marketing','category':'Marketing','level':'Beginner','duration':'8 weeks','emoji':'📣','desc':'Social media strategy, SEO basics, email campaigns and paid ads for small brands.'},
+        {'title':'Embroidery & Handwork','category':'Craft','level':'Beginner','duration':'5 weeks','emoji':'🌺','desc':'Zardozi, cross-stitch, mirror work and traditional embroidery techniques.'},
+        {'title':'Skin & Beauty Care','category':'Beauty','level':'Beginner','duration':'5 weeks','emoji':'✨','desc':'Natural facials, skin care routines, threading and setting up a beauty parlour.'},
+        {'title':'Coding for Beginners','category':'Technology','level':'Beginner','duration':'10 weeks','emoji':'🖥️','desc':'Python programming from zero — logic, loops, projects and freelance opportunities.'},
+        {'title':'Candle & Soap Making','category':'Home Entrepreneur','level':'Beginner','duration':'3 weeks','emoji':'🕯️','desc':'Handcrafted candles and soaps for gifting, selling and home décor businesses.'},
+        {'title':'Graphic Design','category':'Design','level':'Beginner','duration':'8 weeks','emoji':'🖌️','desc':'Canva & Photoshop basics, logo design, social media creatives and brand identity.'},
+        {'title':'Spoken English & Communication','category':'Personal Development','level':'Beginner','duration':'6 weeks','emoji':'🗣️','desc':'Confidence building, professional communication, public speaking and interviews.'},
+    ] %}
+
+    {% set all_courses = courses if courses else showcase %}
+    {% set emoji_map = {'Technology':'💻','Marketing':'📣','Business':'📊','Design':'🎨','Personal Development':'🌱','Culinary':'🍰','Craft':'🧵','Beauty':'💄','Home Entrepreneur':'🏠','Fashion':'👗'} %}
+    {% set thumb_map = {'Technology':'thumb-tech','Marketing':'thumb-marketing','Business':'thumb-business','Design':'thumb-design','Culinary':'thumb-culinary','Craft':'thumb-craft','Beauty':'thumb-beauty','Home Entrepreneur':'thumb-homeentrepreneur','Fashion':'thumb-fashion'} %}
+
+    <div class="courses-grid" id="coursesGrid">
+        {% for course in all_courses %}
+        {% set cat = course.category if course.category else 'Other' %}
+        {% set is_db = course.id is defined %}
+        <div class="course-card reveal" data-delay="{{ loop.index0 * 60 }}" data-category="{{ cat }}" data-level="{{ course.level }}">
+            <div class="course-card-thumb {{ thumb_map.get(cat, 'thumb-default') }}">
+                {{ course.emoji if course.emoji else emoji_map.get(cat, '📚') }}
+            </div>
+            <div class="course-card-body">
+                <div class="course-card-title">{{ course.title }}</div>
+                <div class="course-card-desc">{{ (course.desc or course.description or 'Enhance your skills with this comprehensive course.')[:90] }}{% if ((course.desc or course.description or '')|length) > 90 %}…{% endif %}</div>
+                <div class="course-card-meta">
+                    <span class="badge-pink">{{ course.level }}</span>
+                    <span class="badge-teal">{{ cat }}</span>
+                    <span style="font-size:0.75rem;color:var(--text-light);align-self:center">⏱ {{ course.duration }}</span>
+                </div>
+                <div class="course-card-footer">
+                    {% if is_db %}
+                    <a href="{{ url_for('courses.enroll_course', course_id=course.id) }}" class="btn-pink sm" style="width:100%;justify-content:center">Enroll Now 🌸</a>
+                    {% else %}
+                    <button class="btn-pink sm" style="width:100%;justify-content:center" onclick="showEnrollMsg(this)">Enroll Now 🌸</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── Mentor Chat FAB ── -->
+<button class="chat-fab" onclick="toggleChat()" title="Chat with Mentor">💬</button>
+
+<div class="chat-widget" id="chatWidget">
+    <div class="chat-header">
+        <div class="chat-header-avatar">👩‍🏫</div>
+        <div class="chat-header-info">
+            <h4 id="chatMentorName">Select a Mentor</h4>
+            <p id="chatMentorCourse">Choose below to start chatting</p>
+        </div>
+        <button class="chat-header-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-mentor-select">
+        <select id="mentorSelect" onchange="switchMentor()">
+            <option value="">🌸 Select your mentor...</option>
+            <option value="Priya|Bakery & Culinary Arts">👩‍🍳 Priya — Bakery & Culinary Arts</option>
+            <option value="Meena|Stitching & Fashion Design">🧵 Meena — Stitching & Fashion Design</option>
+            <option value="Anjali|Technology & Coding">💻 Anjali — Technology & Coding</option>
+            <option value="Kavitha|Beauty & Hair Styling">💄 Kavitha — Beauty & Hair Styling</option>
+            <option value="Rekha|Home Business & Marketing">🏠 Rekha — Home Business & Marketing</option>
+            <option value="Sudha|Craft & Fabric Arts">🎨 Sudha — Craft & Fabric Arts</option>
+        </select>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <div style="text-align:center;color:var(--text-light);font-size:0.78rem;padding:20px">
+            Select a mentor above to begin your conversation 🌸
+        </div>
+    </div>
+    <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text" placeholder="Type your message…" onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="chat-send" onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function filterCourses(){
+    const cat=document.getElementById('categoryFilter').value;
+    const lvl=document.getElementById('levelFilter').value;
+    document.querySelectorAll('.course-card').forEach(card=>{
+        const showCat=cat==='all'||card.dataset.category===cat;
+        const showLvl=lvl==='all'||card.dataset.level===lvl;
+        card.style.display=showCat&&showLvl?'flex':'none';
+    });
+}
+function showEnrollMsg(btn){
+    btn.textContent='✅ Enrolled!';
+    btn.style.background='linear-gradient(135deg,#4caf93,#2e9c7a)';
+    btn.disabled=true;
+}
+
+// ── Chat ──
+let currentMentor=null;
+const greetings={
+    'Priya':['Hello! 🌸 I\'m Priya, your bakery mentor. What would you like to learn today?','Ask me anything about baking, pastry or running your kitchen business!'],
+    'Meena':['Hi there! 🧵 I\'m Meena. Ready to help you master stitching and fashion design!','What are you working on — a dress, blouse or something new?'],
+    'Anjali':['Hey! 💻 I\'m Anjali. Let\'s build something amazing with code!','Ask me about web dev, Python, or how to start your tech career.'],
+    'Kavitha':['Hello! 💄 I\'m Kavitha. Beauty and confidence go hand in hand!','Ask me about hair care, skin routines or setting up your parlour.'],
+    'Rekha':['Hi! 🏠 I\'m Rekha. Let\'s grow your home business together!','Ask me about pricing, Instagram marketing, or managing customers.'],
+    'Sudha':['Hello! 🎨 I\'m Sudha. Let\'s create something beautiful today!','Ask me about fabric painting, embroidery or craft business tips.'],
+};
+function toggleChat(){
+    const w=document.getElementById('chatWidget');
+    w.classList.toggle('open');
+}
+function switchMentor(){
+    const val=document.getElementById('mentorSelect').value;
+    if(!val)return;
+    const[name,course]=val.split('|');
+    currentMentor=name;
+    document.getElementById('chatMentorName').textContent='Mentor '+name;
+    document.getElementById('chatMentorCourse').textContent=course;
+    const msgs=document.getElementById('chatMessages');
+    msgs.innerHTML='';
+    (greetings[name]||['Hello! How can I help you today?']).forEach((m,i)=>{
+        setTimeout(()=>addMsg(m,'mentor'),i*600);
+    });
+}
+function addMsg(text,type){
+    const msgs=document.getElementById('chatMessages');
+    const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const div=document.createElement('div');
+    div.className='chat-msg '+type;
+    div.innerHTML=text+'<div class="chat-msg-time">'+now+'</div>';
+    msgs.appendChild(div);
+    msgs.scrollTop=msgs.scrollHeight;
+}
+function sendMessage(){
+    const input=document.getElementById('chatInput');
+    const text=input.value.trim();
+    if(!text)return;
+    if(!currentMentor){alert('Please select a mentor first 🌸');return;}
+    addMsg(text,'learner');
+    input.value='';
+    setTimeout(()=>{
+        const replies=[
+            'Great question! Let me guide you step by step 🌸',
+            'Absolutely! That\'s a wonderful thing to learn.',
+            'I love your enthusiasm! Here\'s what I suggest...',
+            'Practice makes perfect! Start small and build up.',
+            'You\'re on the right track! Keep going 💪',
+        ];
+        addMsg(replies[Math.floor(Math.random()*replies.length)],'mentor');
+    },700+Math.random()*600);
+}
+</script>
+{% endblock %}
+{% endblock %}

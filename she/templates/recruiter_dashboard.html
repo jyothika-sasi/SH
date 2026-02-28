@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block extra_styles %}
+<style>
+.dashboard{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:36px;max-width:1300px;margin:0 auto}
+.sidebar{display:flex;flex-direction:column;gap:16px}
+.profile-card{background:white;border-radius:22px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07)}
+.profile-banner{height:80px;background:linear-gradient(135deg,#2ec4b6,var(--cherry));position:relative}
+.profile-avatar-lg{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2ec4b6,var(--cherry));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.5rem;color:white;font-weight:700;border:3px solid white;box-shadow:0 4px 15px rgba(46,196,182,0.3);position:absolute;bottom:-28px;left:50%;transform:translateX(-50%)}
+.profile-info{padding:44px 20px 20px;text-align:center}
+.profile-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text-dark);margin-bottom:4px}
+.profile-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(46,196,182,0.1);color:#2e9b8a;padding:4px 14px;border-radius:50px;font-size:0.76rem;font-weight:600}
+.sidebar-nav{background:white;border-radius:20px;overflow:hidden;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07)}
+.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:14px 20px;font-size:0.88rem;color:var(--text-mid);text-decoration:none;border-left:3px solid transparent;transition:all 0.25s;justify-content:space-between}
+.sidebar-nav a .nav-left{display:flex;align-items:center;gap:12px}
+.sidebar-nav a:hover{background:var(--ivory);color:var(--cherry);border-left-color:var(--petal)}
+.sidebar-nav a i{width:18px;text-align:center;color:var(--petal);font-size:0.9rem}
+.sidebar-nav a.active{background:var(--ivory);color:var(--cherry);border-left-color:var(--cherry);font-weight:600}
+.notif-badge{background:var(--cherry);color:white;border-radius:50px;font-size:0.68rem;font-weight:700;padding:2px 8px}
+
+.welcome-banner{background:linear-gradient(135deg,#2ec4b6,var(--cherry));border-radius:22px;padding:32px 36px;color:white;position:relative;overflow:hidden}
+.welcome-banner::before{content:'💼';position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.2}
+.welcome-banner h3{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px}
+.welcome-banner p{font-size:0.9rem;opacity:0.88}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-card{background:white;border-radius:18px;padding:24px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 16px rgba(212,92,132,0.07);display:flex;justify-content:space-between;align-items:center}
+.stat-card-num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--cherry)}
+.stat-card-label{font-size:0.8rem;color:var(--text-light);margin-top:2px}
+.stat-card-icon{font-size:2.2rem;opacity:0.3}
+
+.action-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.action-card-big{background:white;border-radius:18px;padding:28px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 16px rgba(212,92,132,0.07);display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+.action-card-big:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(212,92,132,0.15)}
+.action-card-big-icon{font-size:3rem;opacity:0.3}
+.action-card-big h5{font-size:1rem;font-weight:600;color:var(--text-dark);margin-bottom:4px}
+.action-card-big p{font-size:0.82rem;color:var(--text-light);margin-bottom:14px}
+
+.panel-card{background:white;border-radius:20px;border:1px solid rgba(212,92,132,0.1);box-shadow:0 4px 20px rgba(212,92,132,0.07);overflow:hidden}
+.panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(212,92,132,0.08)}
+.panel-header h5{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text-dark)}
+.main-content{display:flex;flex-direction:column;gap:22px}
+
+@media(max-width:900px){.dashboard{grid-template-columns:1fr;padding:16px}.stats-grid{grid-template-columns:1fr 1fr}.action-cards{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="profile-card">
+            <div style="position:relative">
+                <div class="profile-banner"></div>
+                <div class="profile-avatar-lg">{{ current_user.name[0].upper() }}</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">{{ current_user.name }} 💼</div>
+                <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:10px">{{ current_user.company or 'Recruiter' }}</div>
+                <span class="profile-badge">💼 Recruiter</span>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="active"><div class="nav-left"><i class="fas fa-home"></i> Dashboard</div></a>
+            <a href="{{ url_for('post_job') }}"><div class="nav-left"><i class="fas fa-plus-circle"></i> Post Job</div></a>
+            <a href="{{ url_for('post_job') }}">
+                <div class="nav-left"><i class="fas fa-briefcase"></i> My Jobs</div>
+            </a>
+            <a href="#"><div class="nav-left"><i class="fas fa-users"></i> Applicants</div><span class="notif-badge">{{ applications }}</span></a>
+            <a href="#"><div class="nav-left"><i class="fas fa-chart-bar"></i> Analytics</div></a>
+            <a href="#"><div class="nav-left"><i class="fas fa-cog"></i> Settings</div></a>
+        </div>
+
+        <div style="background:white;border-radius:20px;padding:20px;border:1px solid rgba(212,92,132,0.1)">
+            <h6 style="font-family:'Playfair Display',serif;color:var(--text-dark);margin-bottom:16px">📊 Overview</h6>
+            <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.82rem;color:var(--text-mid)">Jobs Posted</span>
+                    <span style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--cherry)">{{ jobs|length }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.82rem;color:var(--text-mid)">Active Jobs</span>
+                    <span style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--cherry)">{{ jobs|selectattr('is_active','equalto',true)|list|length }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ivory);border-radius:10px">
+                    <span style="font-size:0.82rem;color:var(--text-mid)">Applications</span>
+                    <span style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--cherry)">{{ applications }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-banner reveal">
+            <h3>Welcome, {{ current_user.name.split()[0] }}! 💼</h3>
+            <p>Find talented women for your organisation. Post jobs and connect with skilled candidates. ✨</p>
+        </div>
+
+        <div class="stats-grid reveal" data-delay="100">
+            <div class="stat-card"><div><div class="stat-card-num">{{ jobs|length }}</div><div class="stat-card-label">Total Jobs 📋</div></div><div class="stat-card-icon">📝</div></div>
+            <div class="stat-card"><div><div class="stat-card-num">{{ applications }}</div><div class="stat-card-label">Applications 👩</div></div><div class="stat-card-icon">📨</div></div>
+            <div class="stat-card"><div><div class="stat-card-num">{{ jobs|selectattr('is_active','equalto',true)|list|length }}</div><div class="stat-card-label">Active Listings ✅</div></div><div class="stat-card-icon">✨</div></div>
+        </div>
+
+        <div class="action-cards reveal" data-delay="140">
+            <div class="action-card-big">
+                <div>
+                    <h5>Post a New Job</h5>
+                    <p>Find the perfect woman for your team</p>
+                    <a href="{{ url_for('post_job') }}" class="btn-pink sm"><i class="fas fa-plus-circle"></i> Post Job</a>
+                </div>
+                <div class="action-card-big-icon">💼</div>
+            </div>
+            <div class="action-card-big">
+                <div>
+                    <h5>Review Applications</h5>
+                    <p>{{ applications }} application(s) waiting for review</p>
+                    <a href="#" class="btn-outline-pink sm"><i class="fas fa-users"></i> View All</a>
+                </div>
+                <div class="action-card-big-icon">📋</div>
+            </div>
+        </div>
+
+        <!-- Job Listings -->
+        <div class="panel-card reveal" data-delay="200">
+            <div class="panel-header">
+                <h5>📋 My Job Listings</h5>
+                <a href="{{ url_for('post_job') }}" class="btn-pink sm"><i class="fas fa-plus"></i> Post New</a>
+            </div>
+            {% if jobs %}
+            <div style="padding:0">
+                <table class="she-table">
+                    <thead><tr><th>Job Title</th><th>Location</th><th>Posted</th><th>Applicants</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td><div style="font-weight:600;font-size:0.9rem;color:var(--text-dark)">{{ job.title }}</div><div style="font-size:0.75rem;color:var(--text-light)">{{ job.company }}</div></td>
+                        <td>{{ job.location }}</td>
+                        <td>{{ job.posted_at.strftime('%b %d, %Y') }}</td>
+                        <td><span class="badge-pink">{{ job.applications|length }}</span></td>
+                        <td>{% if job.is_active %}<span class="badge-green">Active</span>{% else %}<span class="badge-pink" style="background:rgba(150,150,150,0.1);color:#888">Closed</span>{% endif %}</td>
+                        <td><a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn-outline-pink sm">View Applicants</a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding:50px;text-align:center;color:var(--text-light)">
+                <div style="font-size:3rem;margin-bottom:12px">📋</div>
+                <p>No jobs posted yet. <a href="{{ url_for('post_job') }}" style="color:var(--cherry);font-weight:600">Post your first job →</a></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
