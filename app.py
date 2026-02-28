@@ -5,7 +5,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import re
 
-app = Flask(__name__)
+import os
+
+# Get the directory where this script is located
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(basedir, 'she', 'frontend', 'templates'),
+    static_folder=os.path.join(basedir, 'she', 'frontend', 'static')
+)
 app.config['SECRET_KEY'] = 'your-secret-key-here-change-this'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///she_empowerment.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

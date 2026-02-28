@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user
-from she.backend.models import User, db
+from models import User, db
 from . import auth_bp
 import re
 
